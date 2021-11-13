@@ -245,6 +245,7 @@ function Flow() {
   const onPaneContextMenu = useCallback(
     (event: React.MouseEvent<Element, MouseEvent>) => {
       event.preventDefault();
+      // TODO(shyndman): Position context menu so that we don't overflow
       contextMenu.setRect({
         width: 0,
         height: 0,
