@@ -6,6 +6,7 @@ import { AudioContext } from "utils/audioContext";
 import ADSRWorkletProcessor from "worklet-loader!worklets/adsr-processor.worklet.ts";
 import AndGateWorkletProcessor from "worklet-loader!worklets/and-gate-processor.worklet.ts";
 import ComparatorWorkletProcessor from "worklet-loader!worklets/comparator-processor.worklet.ts";
+import EnvelopeFollowerWorkletProcessor from "worklet-loader!worklets/envelope-follower.worklet.ts";
 import GateWorkletProcessor from "worklet-loader!worklets/gate-processor.worklet.ts";
 import MeterWorkletProcessor from "worklet-loader!worklets/meter-processor.worklet.ts";
 import NoiseWorkletProcessor from "worklet-loader!worklets/noise-processor.worklet.ts";
@@ -41,6 +42,7 @@ function Audio({ children }: Props) {
         context.audioWorklet.addModule(ADSRWorkletProcessor),
         context.audioWorklet.addModule(AndGateWorkletProcessor),
         context.audioWorklet.addModule(ComparatorWorkletProcessor),
+        context.audioWorklet.addModule(EnvelopeFollowerWorkletProcessor),
         context.audioWorklet.addModule(GateWorkletProcessor),
         context.audioWorklet.addModule(MeterWorkletProcessor),
         context.audioWorklet.addModule(NoiseWorkletProcessor),

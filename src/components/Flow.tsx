@@ -18,6 +18,7 @@ import produce from "immer";
 import ADSR from "components/nodes/ADSR";
 import Analyser from "components/nodes/Analyser";
 import AndGate from "components/nodes/AndGate";
+import EnvelopeFollower from "components/nodes/EnvelopeFollower";
 import AudioBufferSource from "components/nodes/AudioBufferSource";
 import BiquadFilter from "components/nodes/BiquadFilter";
 import ChannelMerger from "components/nodes/ChannelMerger";
@@ -72,6 +73,7 @@ const nodeTypes = {
   DelayEffect: DelayEffect,
   Destination: Destination,
   DynamicsCompressor: DynamicsCompressor,
+  EnvelopeFollower: EnvelopeFollower,
   Equalizer: Equalizer,
   Gain: Gain,
   Gate: Gate,

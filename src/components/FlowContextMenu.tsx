@@ -46,6 +46,7 @@ const items = [
     items: [
       { label: "ADSR", node: "ADSR" },
       { label: "Constant Source", node: "ConstantSource" },
+      { label: "Envelope Follower", node: "EnvelopeFollower" },
       { label: "Input Switch", node: "InputSwitch" },
       { label: "Output Switch", node: "OutputSwitch" },
       { label: "XY Pad", node: "XYPad" },
