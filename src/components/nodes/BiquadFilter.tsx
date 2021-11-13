@@ -1,32 +1,53 @@
-import React, { useEffect, useRef } from "react";
-import { NodeProps } from "react-flow-renderer";
-import Node from "components/Node";
-import useBiquadFilterNode from "hooks/nodes/useBiquadFilterNode";
-import { BiquadFilterNode, TBiquadFilterType } from "utils/audioContext";
+import React, { useEffect, useRef } from 'react';
+import { NodeProps } from 'react-flow-renderer';
+import Node from 'components/Node';
+import useBiquadFilterNode from 'hooks/nodes/useBiquadFilterNode';
+import { BiquadFilterNode, TBiquadFilterType } from 'utils/audioContext';
 
-const filtersUsingGain: TBiquadFilterType[] = ["lowshelf", "highshelf", "peaking"];
-const filtersUsingQ: TBiquadFilterType[] = ["lowpass", "highpass", "bandpass", "peaking", "notch", "allpass"];
+const filtersUsingGain: TBiquadFilterType[] = [
+  'lowshelf',
+  'highshelf',
+  'peaking',
+];
+const filtersUsingQ: TBiquadFilterType[] = [
+  'lowpass',
+  'highpass',
+  'bandpass',
+  'peaking',
+  'notch',
+  'allpass',
+];
 
-function drawFrequencyResponse(context: CanvasRenderingContext2D, data: Float32Array, node: BiquadFilterNode) {
+function drawFrequencyResponse(
+  context: CanvasRenderingContext2D,
+  data: Float32Array,
+  node: BiquadFilterNode
+) {
   let x = 0;
   const height = context.canvas.height;
   const width = context.canvas.width;
   const bufferLength = data.length;
   const sliceWidth = width / bufferLength;
 
-  context.fillStyle = "#001400";
+  context.fillStyle = '#001400';
   context.fillRect(0, 0, width, height);
 
   context.lineWidth = 1;
-  context.strokeStyle = "#ffffff77";
+  context.strokeStyle = '#ffffff77';
   context.beginPath();
-  context.moveTo((node.frequency.value / (node.context.sampleRate / 2)) * width, 0);
-  context.lineTo((node.frequency.value / (node.context.sampleRate / 2)) * width, height);
+  context.moveTo(
+    (node.frequency.value / (node.context.sampleRate / 2)) * width,
+    0
+  );
+  context.lineTo(
+    (node.frequency.value / (node.context.sampleRate / 2)) * width,
+    height
+  );
   context.stroke();
   context.closePath();
 
   context.lineWidth = 2;
-  context.strokeStyle = "#00c800";
+  context.strokeStyle = '#00c800';
   context.beginPath();
   for (let i = 0; i < bufferLength; i++) {
     const y = (data[i] * height) / 2;
@@ -37,18 +58,27 @@ function drawFrequencyResponse(context: CanvasRenderingContext2D, data: Float32A
 }
 
 function BiquadFilter({ data, id, selected, type: nodeType }: NodeProps) {
-  const { detune = 0, gain = 0, frequency = 350, Q = 1, onChange, type = "lowpass" } = data;
+  const {
+    detune = 0,
+    gain = 0,
+    frequency = 350,
+    Q = 1,
+    onChange,
+    type = 'lowpass',
+  } = data;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const node = useBiquadFilterNode(id, { detune, frequency, gain, Q, type });
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
+    const context = canvas?.getContext('2d');
     if (!canvas || !context) {
       return;
     }
 
-    const frequencies = new Float32Array(node.context.sampleRate / 200).map((_, i) => i * 100);
+    const frequencies = new Float32Array(node.context.sampleRate / 200).map(
+      (_, i) => i * 100
+    );
     const magnitudes = new Float32Array(frequencies.length);
     const phases = new Float32Array(frequencies.length);
 
@@ -65,8 +95,8 @@ function BiquadFilter({ data, id, selected, type: nodeType }: NodeProps) {
   return (
     <Node
       id={id}
-      inputs={["input", "detune", "frequency", "gain", "Q"]}
-      outputs={["output"]}
+      inputs={['input', 'detune', 'frequency', 'gain', 'Q']}
+      outputs={['output']}
       title={`Filter: ${type}`}
       type={nodeType}
     >
@@ -93,6 +123,11 @@ function BiquadFilter({ data, id, selected, type: nodeType }: NodeProps) {
               type="range"
               value={frequency}
             />
+            <input
+              type="number"
+              value={frequency}
+              onChange={e => onChange({ frequency: +e.target.value })}
+            />
           </div>
           <div className="customNode_item">
             <input
@@ -110,16 +145,24 @@ function BiquadFilter({ data, id, selected, type: nodeType }: NodeProps) {
             <input
               disabled={!canUseQ}
               min={0.0001}
-              max={["lowpass", "highpass"].includes(type) ? 10 : 1000}
+              max={['lowpass', 'highpass'].includes(type) ? 10 : 1000}
               onChange={e => onChange({ Q: +e.target.value })}
-              step={["lowpass", "highpass"].includes(type) ? 0.1 : 10}
+              step={['lowpass', 'highpass'].includes(type) ? 0.1 : 10}
               title={`Q: ${Q}`}
               type="range"
               value={Q}
             />
+            <input
+              type="number"
+              value={Q}
+              onChange={e => onChange({ Q: +e.target.value })}
+            />
           </div>
           <div className="customNode_item">
-            <select onChange={e => onChange({ type: e.target.value })} value={type}>
+            <select
+              onChange={e => onChange({ type: e.target.value })}
+              value={type}
+            >
               <option value="lowpass">lowpass</option>
               <option value="highpass">highpass</option>
               <option value="bandpass">bandpass</option>
