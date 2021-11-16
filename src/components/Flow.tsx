@@ -1,24 +1,7 @@
-import React, { useCallback, useState } from "react";
-import ReactFlow, {
-  addEdge,
-  isEdge,
-  isNode,
-  removeElements,
-  Background,
-  Connection,
-  Controls,
-  Edge,
-  Elements,
-  Node as ReactFlowNode,
-  OnConnectStartParams,
-  OnLoadParams as ReactFlowInstance,
-} from "react-flow-renderer";
-import { v4 as uuidv4 } from "uuid";
-import produce from "immer";
+import FlowContextMenu from "components/FlowContextMenu";
 import ADSR from "components/nodes/ADSR";
 import Analyser from "components/nodes/Analyser";
 import AndGate from "components/nodes/AndGate";
-import EnvelopeFollower from "components/nodes/EnvelopeFollower";
 import AudioBufferSource from "components/nodes/AudioBufferSource";
 import BiquadFilter from "components/nodes/BiquadFilter";
 import ChannelMerger from "components/nodes/ChannelMerger";
@@ -30,8 +13,8 @@ import Delay from "components/nodes/Delay";
 import DelayEffect from "components/nodes/DelayEffect";
 import Destination from "components/nodes/Destination";
 import DynamicsCompressor from "components/nodes/DynamicsCompressor";
+import EnvelopeFollower from "components/nodes/EnvelopeFollower";
 import Equalizer from "components/nodes/Equalizer";
-import FlowContextMenu from "components/FlowContextMenu";
 import Gain from "components/nodes/Gain";
 import Gate from "components/nodes/Gate";
 import InputSwitch from "components/nodes/InputSwitch";
@@ -56,7 +39,25 @@ import XYPad from "components/nodes/XYPad";
 import { useContextMenu } from "context/ContextMenuContext";
 import { AnyAudioNode, useNodeContext } from "context/NodeContext";
 import { useProject } from "context/ProjectContext";
+import produce from "immer";
+import React, { useCallback, useState } from "react";
+import ReactFlow, {
+  addEdge,
+  Background,
+  Connection,
+  Controls,
+  Edge,
+  Elements,
+  isEdge,
+  isNode,
+  Node as ReactFlowNode,
+  OnConnectStartParams,
+  OnLoadParams as ReactFlowInstance,
+  removeElements,
+} from "react-flow-renderer";
 import { useOnConnect, useOnEdgeRemove, useOnNodeRemove } from "utils/handles";
+import { v4 as uuidv4 } from "uuid";
+import RawGain from "./nodes/RawGain";
 
 const nodeTypes = {
   ADSR: ADSR,
@@ -88,6 +89,7 @@ const nodeTypes = {
   OscillatorNote: OscillatorNote,
   OutputSwitch: OutputSwitch,
   Quantizer: Quantizer,
+  RawGain: RawGain,
   Rectifier: Rectifier,
   SampleAndHold: SampleAndHold,
   Sign: Sign,
@@ -110,12 +112,17 @@ function getEdgeWithColor(params: Edge | Connection) {
   });
 }
 
-async function waitForInitialNodes(initialElements: Elements, audioNodes: Record<string, AnyAudioNode>) {
-  const nodesWithConnections = initialElements.filter(isEdge).reduce<Record<string, boolean>>((nodeIds, edge) => {
-    nodeIds[edge.source] = true;
-    nodeIds[edge.target] = true;
-    return nodeIds;
-  }, {});
+async function waitForInitialNodes(
+  initialElements: Elements,
+  audioNodes: Record<string, AnyAudioNode>
+) {
+  const nodesWithConnections = initialElements
+    .filter(isEdge)
+    .reduce<Record<string, boolean>>((nodeIds, edge) => {
+      nodeIds[edge.source] = true;
+      nodeIds[edge.target] = true;
+      return nodeIds;
+    }, {});
   while (Object.keys(nodesWithConnections).length) {
     Object.keys(audioNodes).forEach(nodeId => {
       delete nodesWithConnections[nodeId];
