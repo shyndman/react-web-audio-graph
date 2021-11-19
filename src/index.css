@@ -6,8 +6,8 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-    "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -193,6 +193,23 @@ body {
 .customNode_item .react-flow__handle-right {
   transform: translateX(50%) translateY(-50%);
   right: 0;
+}
+
+.vocoderNode_canvasHost {
+  position: relative;
+  background: #001400;
+}
+.vocoderNode_canvasHost .vocoderNode_overlayCanvas {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.vocoderNode_canvasHost .vocoderNode_overlayPause {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 
 .customNode:hover .react-flow__handle,

@@ -70,19 +70,24 @@ function Project() {
 
   // Store project in URL
   useEffect(() => {
-    window.location.hash = btoa(
-      JSON.stringify({
-        elements: elements.map(element => ({ ...element, __rf: undefined })),
-        id,
-        transform,
-      })
+    window.history.replaceState(
+      null,
+      document.title,
+      "#" +
+        btoa(
+          JSON.stringify({
+            elements: elements.map(element => ({ ...element, __rf: undefined })),
+            id,
+            transform,
+          })
+        )
     );
   }, [elements, id, transform]);
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       try {
-        const { elements, id, transform } = JSON.parse(e.target.value);
+        const { elements, id, transform } = JSON.parse(e.target.value ?? "");
         setElements(elements);
         setId(id ?? uuidv4());
         setTransform(transform);
