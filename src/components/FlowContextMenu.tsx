@@ -39,6 +39,7 @@ const items = [
       { label: "Sign", node: "Sign" },
       { label: "Stereo Panner", node: "StereoPanner" },
       { label: "Transformer", node: "Transformer" },
+      { label: "Vocoder", node: "Vocoder" },
       { label: "Wave Shaper", node: "WaveShaper" },
     ],
     label: "Effects",

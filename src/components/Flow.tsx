@@ -33,6 +33,7 @@ import SampleAndHold from "components/nodes/SampleAndHold";
 import Sign from "components/nodes/Sign";
 import StereoPanner from "components/nodes/StereoPanner";
 import Transformer from "components/nodes/Transformer";
+import Vocoder from "components/nodes/Vocoder";
 import WaveShaper from "components/nodes/WaveShaper";
 import XorGate from "components/nodes/XorGate";
 import XYPad from "components/nodes/XYPad";
@@ -92,6 +93,7 @@ const nodeTypes = {
   RawGain: RawGain,
   Rectifier: Rectifier,
   SampleAndHold: SampleAndHold,
+  Vocoder: Vocoder,
   Sign: Sign,
   StereoPanner: StereoPanner,
   Transformer: Transformer,
