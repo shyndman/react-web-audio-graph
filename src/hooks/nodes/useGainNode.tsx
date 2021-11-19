@@ -17,7 +17,7 @@ function useGainNode(id: string, { gain = 1, instant = false }: Options) {
     } else {
       node.gain.setTargetAtTime(gain, node.context.currentTime, 0.015);
     }
-  }, [node, gain]);
+  }, [node, gain, instant]);
 
   return node;
 }
