@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNode } from "context/NodeContext";
 import { TBiquadFilterType } from "utils/audioContext";
+import { BiquadFilterNode } from "standardized-audio-context";
 
 interface Options {
   detune?: number;
@@ -10,9 +11,11 @@ interface Options {
   type?: TBiquadFilterType;
 }
 
-function useBiquadFilterNode(id: string, { detune = 0, frequency = 350, gain = 0, Q = 1, type = "lowpass" }: Options) {
+function useBiquadFilterNode(id: string, options: Options) {
+  const { detune = 0, frequency = 350, gain = 0, Q = 1, type = "lowpass" } = options;
+
   // AudioNode
-  const node = useNode(id, context => context.createBiquadFilter());
+  const node = useNode(id, context => new BiquadFilterNode(context, options));
 
   // AudioParam
   useEffect(() => void (node.detune.value = detune), [node, detune]);
