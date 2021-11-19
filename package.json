@@ -5,6 +5,7 @@
   "homepage": "https://michalochman.github.io/react-web-audio-graph",
   "dependencies": {
     "@popperjs/core": "^2.5.4",
+    "@restart/hooks": "^0.4.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",

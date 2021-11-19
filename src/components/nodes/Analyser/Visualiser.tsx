@@ -1,6 +1,6 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { DataType } from "components/nodes/Analyser/index";
-import useAnimationFrame from "hooks/useAnimationFrame";
+import useAnimationFrame from "@restart/hooks/useAnimationFrame";
 import { AnalyserNode } from "utils/audioContext";
 
 interface OwnProps {
@@ -81,14 +81,17 @@ function Visualiser({ node, paused, type, ...canvasProps }: Props) {
     audioData.current = dataArray;
   }, [node, type]);
 
+  const raf = useAnimationFrame();
   const tick = useCallback(() => {
-    if (!paused) {
-      getData();
-      draw();
-    }
-  }, [draw, getData, paused]);
+    getData();
+    draw();
+    raf.request(true, tick);
+  }, [draw, getData, raf]);
 
-  useAnimationFrame(tick);
+  useEffect(() => {
+    if (paused) raf.cancel();
+    else raf.request(true, tick);
+  }, [tick, raf, paused]);
 
   return <canvas ref={canvasRef} style={{ display: "block" }} {...canvasProps} />;
 }

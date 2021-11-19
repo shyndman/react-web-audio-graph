@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { NodeProps } from "react-flow-renderer";
 import Node from "components/Node";
-import useAnimationFrame from "hooks/useAnimationFrame";
+import useAnimationFrame from "@restart/hooks/useAnimationFrame";
 import useAudioWorkletNode from "hooks/nodes/useAudioWorkletNode";
 import { logarithmic } from "utils/scale";
 import { float32toDb } from "utils/units";
@@ -58,17 +58,31 @@ function drawMeter(context: CanvasRenderingContext2D, levels: number[]) {
       .fill(undefined)
       .forEach((_, item) => {
         const decibels = MAX_LEVEL - item;
-        const hue = Math.min(Math.max(120 * logarithmic(Math.max(0, -decibels / 10)), 0), 120).toFixed(0);
+        const hue = Math.min(
+          Math.max(120 * logarithmic(Math.max(0, -decibels / 10)), 0),
+          120
+        ).toFixed(0);
         const lightness = float32toDb(level) >= decibels ? "50%" : "0%";
 
         context.fillStyle = `hsl(${hue}, 50%, ${lightness})`;
-        context.fillRect((levelIndex + 1) * (WIDTH + LEVEL_GAP) - LEVEL_GAP, item * HEIGHT + 5, WIDTH, HEIGHT);
+        context.fillRect(
+          (levelIndex + 1) * (WIDTH + LEVEL_GAP) - LEVEL_GAP,
+          item * HEIGHT + 5,
+          WIDTH,
+          HEIGHT
+        );
       });
   });
 }
 
-type ChannelMessageEvent = MessageEvent<{ payload: { channels: number; id: string }; type: "channels" }>;
-type LevelMessageEvent = MessageEvent<{ payload: { channel: number; id: string; level: number }; type: "level" }>;
+type ChannelMessageEvent = MessageEvent<{
+  payload: { channels: number; id: string };
+  type: "channels";
+}>;
+type LevelMessageEvent = MessageEvent<{
+  payload: { channel: number; id: string; level: number };
+  type: "level";
+}>;
 
 // TODO add peak hold
 function Meter({ id, type }: NodeProps) {
@@ -99,6 +113,7 @@ function Meter({ id, type }: NodeProps) {
     node.port.onmessage = handleMessage;
   }, [node, handleMessage]);
 
+  const animationRequest = useAnimationFrame();
   const tick = useCallback(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -107,9 +122,10 @@ function Meter({ id, type }: NodeProps) {
     }
 
     drawMeter(context, levelsRef.current.slice(0, channels));
-  }, [channels]);
+    animationRequest.request(tick);
+  }, [channels, animationRequest]);
 
-  useAnimationFrame(tick);
+  animationRequest.request(tick);
 
   return (
     <Node id={id} inputs={["input"]} title="Meter" type={type}>
