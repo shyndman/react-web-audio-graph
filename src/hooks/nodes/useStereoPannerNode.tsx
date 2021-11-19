@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import useImmediateUpdateEffect from "hooks/useImmediateUpdateEffect";
 import { useNode } from "context/NodeContext";
 
 interface Options {
@@ -10,7 +10,7 @@ function useStereoPannerNode(id: string, { pan = 0 }: Options) {
   const node = useNode(id, context => context.createStereoPanner());
 
   // AudioParam
-  useEffect(() => void (node.pan.value = pan), [node, pan]);
+  useImmediateUpdateEffect(() => void (node.pan.value = pan), [node, pan]);
 
   return node;
 }

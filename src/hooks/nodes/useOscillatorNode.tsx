@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import useImmediateUpdateEffect from "hooks/useImmediateUpdateEffect";
 import { useNode } from "context/NodeContext";
+import { useEffect } from "react";
 import { TOscillatorType } from "utils/audioContext";
 
 interface Options {
@@ -17,9 +18,9 @@ function useOscillatorNode(id: string, { detune = 0, frequency = 440, type = "si
   }, [node]);
 
   // AudioParam
-  useEffect(() => void (node.detune.value = detune), [node, detune]);
-  useEffect(() => void (node.frequency.value = frequency), [node, frequency]);
-  useEffect(() => void (node.type = type), [node, type]);
+  useImmediateUpdateEffect(() => void (node.detune.value = detune), [node, detune]);
+  useImmediateUpdateEffect(() => void (node.frequency.value = frequency), [node, frequency]);
+  useImmediateUpdateEffect(() => void (node.type = type), [node, type]);
 
   return node;
 }

@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { useNode } from "context/NodeContext";
+import useImmediateUpdateEffect from "hooks/useImmediateUpdateEffect";
 
 interface Options {
   fftSizeExp?: number;
@@ -10,7 +10,7 @@ function useAnalyserNode(id: string, { fftSizeExp = 11 }: Options) {
   const node = useNode(id, context => context.createAnalyser());
 
   // AudioParam
-  useEffect(() => void (node.fftSize = Math.pow(2, fftSizeExp)), [node, fftSizeExp]);
+  useImmediateUpdateEffect(() => void (node.fftSize = Math.pow(2, fftSizeExp)), [node, fftSizeExp]);
 
   return node;
 }

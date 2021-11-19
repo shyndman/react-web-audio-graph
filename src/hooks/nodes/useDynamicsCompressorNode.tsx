@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import useImmediateUpdateEffect from "hooks/useImmediateUpdateEffect";
 import { useNode } from "context/NodeContext";
 
 interface Options {
@@ -17,11 +17,11 @@ function useDynamicsCompressorNode(
   const node = useNode(id, context => context.createDynamicsCompressor());
 
   // AudioParam
-  useEffect(() => void (node.threshold.value = threshold), [node, threshold]);
-  useEffect(() => void (node.knee.value = knee), [node, knee]);
-  useEffect(() => void (node.ratio.value = ratio), [node, ratio]);
-  useEffect(() => void (node.attack.value = attack), [node, attack]);
-  useEffect(() => void (node.release.value = release), [node, release]);
+  useImmediateUpdateEffect(() => void (node.threshold.value = threshold), [node, threshold]);
+  useImmediateUpdateEffect(() => void (node.knee.value = knee), [node, knee]);
+  useImmediateUpdateEffect(() => void (node.ratio.value = ratio), [node, ratio]);
+  useImmediateUpdateEffect(() => void (node.attack.value = attack), [node, attack]);
+  useImmediateUpdateEffect(() => void (node.release.value = release), [node, release]);
 
   return node;
 }

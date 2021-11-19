@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import useImmediateUpdateEffect from "hooks/useImmediateUpdateEffect";
 import { useNode } from "context/NodeContext";
 import { TOverSampleType } from "utils/audioContext";
 
@@ -12,8 +12,8 @@ function useWaveShaperNode(id: string, { curve = null, oversample = "none" }: Op
   const node = useNode(id, context => context.createWaveShaper());
 
   // AudioParam
-  useEffect(() => void (node.curve = curve), [node, curve]);
-  useEffect(() => void (node.oversample = oversample), [node, oversample]);
+  useImmediateUpdateEffect(() => void (node.curve = curve), [node, curve]);
+  useImmediateUpdateEffect(() => void (node.oversample = oversample), [node, oversample]);
 
   return node;
 }

@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { useNode } from "context/NodeContext";
+import useImmediateUpdateEffect from "hooks/useImmediateUpdateEffect";
 
 interface Options {
   gain?: number;
@@ -11,7 +11,7 @@ function useGainNode(id: string, { gain = 1, instant = false }: Options) {
   const node = useNode(id, context => context.createGain());
 
   // AudioParam
-  useEffect(() => {
+  useImmediateUpdateEffect(() => {
     if (instant) {
       node.gain.value = gain;
     } else {
