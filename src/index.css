@@ -195,23 +195,6 @@ body {
   right: 0;
 }
 
-.vocoderNode_canvasHost {
-  position: relative;
-  background: #001400;
-}
-.vocoderNode_canvasHost .vocoderNode_overlayCanvas {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-.vocoderNode_canvasHost .vocoderNode_overlayPause {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
-
 .customNode:hover .react-flow__handle,
 .react-flow[data-connecting-handletype="source"] .customNode_item .react-flow__handle.target,
 .react-flow[data-connecting-handletype="target"] .customNode_item .react-flow__handle.source {
