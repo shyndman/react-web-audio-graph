@@ -18,7 +18,11 @@ class SampleAndHoldProcessor extends StoppableAudioWorkletProcessor {
   }
 
   // Samples input and holds value for given holdTime
-  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<Parameters, Float32Array>) {
+  process(
+    inputs: Float32Array[][],
+    outputs: Float32Array[][],
+    parameters: Record<Parameters, Float32Array>
+  ) {
     const input = inputs[0];
     const output = outputs[0];
 

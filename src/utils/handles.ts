@@ -18,7 +18,12 @@ function resolveConnection(
   connection: Edge | Connection,
   getNode: (id: string) => AnyAudioNode
 ): ResolvedConnection | never {
-  if (!connection.source || !connection.target || !connection.sourceHandle || !connection.targetHandle) {
+  if (
+    !connection.source ||
+    !connection.target ||
+    !connection.sourceHandle ||
+    !connection.targetHandle
+  ) {
     throw new Error("Invalid connection");
   }
 
@@ -76,7 +81,10 @@ export function connectNodes(connection: Edge | Connection, getNode: (id: string
   }
 }
 
-export function disconnectNodes(connection: Edge | Connection, getNode: (id: string) => AnyAudioNode) {
+export function disconnectNodes(
+  connection: Edge | Connection,
+  getNode: (id: string) => AnyAudioNode
+) {
   try {
     const { inputIndex, outputIndex, source, target } = resolveConnection(connection, getNode);
     if (inputIndex != null) {
@@ -95,7 +103,10 @@ export function disconnectNodes(connection: Edge | Connection, getNode: (id: str
 export function useOnConnect() {
   const { getNode } = useNodeContext();
 
-  return useCallback((connection: Edge | Connection) => connectNodes(connection, getNode), [getNode]);
+  return useCallback(
+    (connection: Edge | Connection) => connectNodes(connection, getNode),
+    [getNode]
+  );
 }
 
 // FIXME This should be handled on changes to ReactFlowRenderer state instead.

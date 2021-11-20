@@ -11,7 +11,9 @@ function ContextMenu({ children }: Props) {
   const [showPopper, setShowPopper] = React.useState(null);
   const [popperElement, setPopperElement] = React.useState<HTMLDivElement>();
   const virtualReference = useRef<VirtualElement>();
-  const { styles, attributes } = usePopper(virtualReference.current, popperElement, { placement: "bottom-start" });
+  const { styles, attributes } = usePopper(virtualReference.current, popperElement, {
+    placement: "bottom-start",
+  });
 
   const context = useMemo(
     () => ({
@@ -41,7 +43,11 @@ function ContextMenu({ children }: Props) {
   return (
     <ContextMenuContext.Provider value={context}>
       {children}
-      <div ref={node => node && setPopperElement(node)} style={styles.popper} {...attributes.popper}>
+      <div
+        ref={node => node && setPopperElement(node)}
+        style={styles.popper}
+        {...attributes.popper}
+      >
         {showPopper}
       </div>
     </ContextMenuContext.Provider>

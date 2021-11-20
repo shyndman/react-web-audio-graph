@@ -70,7 +70,13 @@ function Node({ children, id, inputs, outputs, title, type, ...props }: Props) {
   );
 
   return (
-    <div className="customNode" title={id} onClick={onClick} onContextMenu={onContextMenu} {...props}>
+    <div
+      className="customNode"
+      title={id}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+      {...props}
+    >
       <div className="customNode_header">{title ?? type}</div>
       <div className="customNode_body">
         {inputs && (

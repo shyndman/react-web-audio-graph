@@ -4,7 +4,10 @@ import { AudioContext, AudioNode } from "utils/audioContext";
 import { connectNodes, disconnectNodes } from "utils/handles";
 import { AudioContextContext } from "context/AudioContextContext";
 
-export type ComplexAudioNode<Input extends AudioNode | undefined, Output extends AudioNode | undefined> = {
+export type ComplexAudioNode<
+  Input extends AudioNode | undefined,
+  Output extends AudioNode | undefined
+> = {
   input?: Input;
   output?: Output;
 };
@@ -22,11 +25,16 @@ interface NodeFactory<T> {
   (context: AudioContext): T;
 }
 
-interface ComplexNodeFactory<Input extends AudioNode | undefined, Output extends AudioNode | undefined> {
+interface ComplexNodeFactory<
+  Input extends AudioNode | undefined,
+  Output extends AudioNode | undefined
+> {
   (context: AudioContext): ComplexAudioNode<Input, Output>;
 }
 
-export function isComplexAudioNode(node: AnyAudioNode): node is ComplexAudioNode<AudioNode, AudioNode> {
+export function isComplexAudioNode(
+  node: AnyAudioNode
+): node is ComplexAudioNode<AudioNode, AudioNode> {
   return node && "input" in node && "output" in node;
 }
 
@@ -36,7 +44,11 @@ export function useNodeContext() {
   return useContext(NodeContext);
 }
 
-export function useNode<T extends AudioNode>(id: string, nodeFactory: NodeFactory<T>, dependencies?: DependencyList): T;
+export function useNode<T extends AudioNode>(
+  id: string,
+  nodeFactory: NodeFactory<T>,
+  dependencies?: DependencyList
+): T;
 export function useNode<Input extends AudioNode | undefined, Output extends AudioNode | undefined>(
   id: string,
   nodeFactory: ComplexNodeFactory<Input, Output>,

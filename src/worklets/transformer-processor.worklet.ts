@@ -30,7 +30,13 @@ class TransformerProcessor extends StoppableAudioWorkletProcessor {
   }
 }
 
-function minMax(inputMin: number, inputMax: number, outputMin: number, outputMax: number, value: number): number {
+function minMax(
+  inputMin: number,
+  inputMax: number,
+  outputMin: number,
+  outputMax: number,
+  value: number
+): number {
   return outputMin + ((value - inputMin) * (outputMax - outputMin)) / (inputMax - inputMin);
 }
 

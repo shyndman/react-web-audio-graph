@@ -60,7 +60,11 @@ class ADSRProcessor extends StoppableAudioWorkletProcessor {
     ];
   }
 
-  process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>) {
+  process(
+    inputs: Float32Array[][],
+    outputs: Float32Array[][],
+    parameters: Record<string, Float32Array>
+  ) {
     const input = inputs?.[0]?.[0];
     if (input == null) {
       return this.running;
@@ -95,7 +99,10 @@ class ADSRProcessor extends StoppableAudioWorkletProcessor {
     return this.running;
   }
 
-  getGainGetter(stage: Stage, parameters: Record<Parameters, Float32Array>): (time: number) => number {
+  getGainGetter(
+    stage: Stage,
+    parameters: Record<Parameters, Float32Array>
+  ): (time: number) => number {
     // TODO change this to a-rate parameters to support their automation
     const attackTime = parameters[Parameters.AttackTime][0];
     const decayTime = parameters[Parameters.DecayTime][0];
@@ -141,28 +148,35 @@ class ADSRProcessor extends StoppableAudioWorkletProcessor {
       }
 
       if (this.sustainOn) {
-        const triggered = this.lastTriggerTime[GATE_OFF] < this.lastTriggerTime[GATE_ON] + attackTime + decayTime;
-        const timeFactor = (time: number) => (triggered ? valueToTime(this.lastGainGetterAtStageChange(time)) : 1);
+        const triggered =
+          this.lastTriggerTime[GATE_OFF] < this.lastTriggerTime[GATE_ON] + attackTime + decayTime;
+        const timeFactor = (time: number) =>
+          triggered ? valueToTime(this.lastGainGetterAtStageChange(time)) : 1;
 
         const startTime = this.lastTriggerTime[GATE_OFF];
         const endTime = (time: number) => startTime + releaseTime * timeFactor(time);
-        const clampTime = (time: number) => clamp((time - startTime) / (endTime(time) - startTime), 0, 1);
+        const clampTime = (time: number) =>
+          clamp((time - startTime) / (endTime(time) - startTime), 0, 1);
 
-        const startLevel = (time: number) => (triggered ? this.lastGainGetterAtStageChange(time) : sustainLevel);
+        const startLevel = (time: number) =>
+          triggered ? this.lastGainGetterAtStageChange(time) : sustainLevel;
 
         // sustainLevel / lastGain -> 0
         return (time: number) => (1 - timeToValue(clampTime(time))) * startLevel(time);
       } else {
         const triggered = this.lastTriggerTime[GATE_OFF] > this.lastTriggerTime[GATE_ON];
-        const timeFactor = (time: number) => (triggered ? valueToTime(this.lastGainGetterAtStageChange(time)) : 1);
+        const timeFactor = (time: number) =>
+          triggered ? valueToTime(this.lastGainGetterAtStageChange(time)) : 1;
 
         const startTime = triggered
           ? this.lastTriggerTime[GATE_OFF]
           : this.lastTriggerTime[GATE_ON] + attackTime + decayTime;
         const endTime = (time: number) => startTime + releaseTime * timeFactor(time);
-        const clampTime = (time: number) => clamp((time - startTime) / (endTime(time) - startTime), 0, 1);
+        const clampTime = (time: number) =>
+          clamp((time - startTime) / (endTime(time) - startTime), 0, 1);
 
-        const startLevel = (time: number) => (triggered ? this.lastGainGetterAtStageChange(time) : sustainLevel);
+        const startLevel = (time: number) =>
+          triggered ? this.lastGainGetterAtStageChange(time) : sustainLevel;
 
         // sustainLevel / lastGain -> 0
         return (time: number) => (1 - timeToValue(clampTime(time))) * startLevel(time);

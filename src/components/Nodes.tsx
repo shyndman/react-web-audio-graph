@@ -1,5 +1,10 @@
 import React, { useMemo, useRef } from "react";
-import { AnyAudioNode, NodeContext, NodeContextType, isComplexAudioNode } from "context/NodeContext";
+import {
+  AnyAudioNode,
+  NodeContext,
+  NodeContextType,
+  isComplexAudioNode,
+} from "context/NodeContext";
 import { AudioWorkletNode } from "utils/audioContext";
 
 interface Props {
