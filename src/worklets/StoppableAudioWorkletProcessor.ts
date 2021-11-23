@@ -9,6 +9,7 @@ class StoppableAudioWorkletProcessor extends AudioWorkletProcessor {
 
     this.port.onmessage = event => {
       if (event.data === "stop") {
+        console.log("stopping worklet", this.id);
         this.stop();
       }
     };

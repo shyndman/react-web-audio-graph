@@ -16,6 +16,7 @@ import { noop } from "utils/functions";
 import { dbToFloat32 } from "utils/units";
 import { Parameters } from "worklets/envelope-follower.types";
 import { BandStrip } from "./BandStrip";
+import color from "color";
 import { BandResponse, BandStyle, FilterDescription } from "./types";
 import "./Vocoder.css";
 
@@ -45,6 +46,7 @@ const FILTER_BANDS: FilterDescription[] = [
 export function Vocoder({ id, type }: NodeProps) {
   // Input/output nodes
   const modInputNode = useGainNode(`${id}_modulate`, {});
+  const modAnalyser = useAnalyserNode(`${id}_modulate_analyser`, { fftSizeExp: FFT_SIZE_EXP });
   const carrierInputNode = useGainNode(`${id}_carrier`, {});
   const outputNode = useGainNode(`${id}_output`, {});
 
@@ -135,6 +137,7 @@ export function Vocoder({ id, type }: NodeProps) {
 
     const gainNode = useGainNode(`${id}_carrier_gain_${hz}`, {
       gain: 0,
+      instant: true,
     });
 
     const analyserNode = useAnalyserNode(`${id}_carrier_analyser_${hz}`, {
@@ -151,6 +154,8 @@ export function Vocoder({ id, type }: NodeProps) {
 
   useEffect(
     () => {
+      modInputNode.connect(modAnalyser);
+
       for (const { gain, filter, envelopeFollower } of modFilterBank) {
         // Connect up the chain
         const binModulatorNodes = [filter, gain, envelopeFollower];
@@ -220,7 +225,7 @@ export function Vocoder({ id, type }: NodeProps) {
       return;
     }
 
-    drawFrequencyResponse(context, responsesByBand);
+    drawFrequencyResponse(context, responsesByBand, { min: MIN_HZ, max: MAX_HZ });
   }, [responsesByBand]);
 
   const carrierBandBins = useRef([] as { frequency: number; freqBins: Uint8Array }[]);
@@ -245,7 +250,7 @@ export function Vocoder({ id, type }: NodeProps) {
       return;
     }
 
-    drawBins(context, carrierBandBins.current, {
+    drawBinsAsLine(context, carrierBandBins.current, {
       sampleRate: sampleRate,
       min: MIN_HZ,
       max: MAX_HZ,
@@ -317,41 +322,64 @@ export function Vocoder({ id, type }: NodeProps) {
 
 function drawFrequencyResponse(
   context: CanvasRenderingContext2D,
-  bandResponses: Map<number, BandResponse>
+  bandResponses: Map<number, BandResponse>,
+  { min, max }: { min: number; max: number }
 ) {
   const height = context.canvas.height;
   const width = context.canvas.width;
 
+  const toLog = (value: number) => (value === 0 ? 0 : Math.log10(value / 100));
+  const minLog = toLog(min);
+  const maxLog = toLog(max);
+  const getX = (hz: number) => {
+    const hzLog = toLog(hz);
+    return width * ((hzLog - minLog) / (maxLog - minLog));
+  };
+
   context.clearRect(0, 0, width, height);
 
-  const responseStepWidth = width / RESPONSE_STEPS;
   const responseUnitHeight = height / 3;
 
   // Then draw the response lines on top
-  for (const [i, { hz: frequency }] of FILTER_BANDS.entries()) {
-    const { magResponse } = bandResponses.get(frequency)!;
+  for (const [i, { hz: bandHz }] of FILTER_BANDS.entries()) {
+    const { frequencies, magResponse } = bandResponses.get(bandHz)!;
     const { responseColor } = BAND_COLORS[i]!;
 
-    context.strokeStyle = responseColor;
+    context.strokeStyle = color(responseColor).alpha(0.26).rgb().string();
     context.lineWidth = 2;
-    context.beginPath();
-    let lineStarted = false;
 
-    let x = 0;
+    const gradient = context.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, color(responseColor).alpha(0.15).rgb().string());
+    gradient.addColorStop(0.2, color(responseColor).alpha(0.1).rgb().string());
+    gradient.addColorStop(1, color(responseColor).alpha(0.01).rgb().string());
+
+    let lineStarted = false;
+    let x: number = 0;
+    let minY: number = height;
+
     const frequencyCount = magResponse.length;
     for (let i = 0; i < frequencyCount; i++) {
+      const hz = frequencies[i];
+      x = getX(hz);
       const y = height - responseUnitHeight * magResponse[i];
+      minY = Math.min(y, minY);
 
       if (!lineStarted) {
+        context.beginPath();
         context.moveTo(x, y);
         lineStarted = true;
       } else {
         context.lineTo(x, y);
       }
-
-      x += responseStepWidth;
     }
+
     context.stroke();
+    context.lineTo(x, height);
+    context.lineTo(0, height);
+    context.closePath();
+    context.fillStyle = gradient;
+
+    context.fill();
   }
 }
 
@@ -407,7 +435,79 @@ function drawBins(
   }
 }
 
-const FREQUENCY_COLORS = [
+function drawBinsAsLine(
+  context: CanvasRenderingContext2D,
+  bandBins: { frequency: number; freqBins: Uint8Array }[],
+  {
+    min,
+    max,
+    sampleRate,
+  }: {
+    min: number;
+    max: number;
+    sampleRate: number;
+  }
+) {
+  if (!bandBins.length) {
+    return;
+  } else if (bandBins.length > BAND_COLORS.length) {
+    console.error("Not enough frequency colors");
+    return;
+  }
+
+  const height = context.canvas.height;
+  const width = context.canvas.width;
+
+  const toLog = (value: number) => (value === 0 ? 0 : Math.log10(value / 100));
+  const minLog = toLog(min);
+  const maxLog = toLog(max);
+  const getX = (hz: number) => {
+    const hzLog = toLog(hz);
+    return width * ((hzLog - minLog) / (maxLog - minLog));
+  };
+
+  context.clearRect(0, 0, width, height);
+
+  const bandwidth = sampleRate / 2;
+
+  const binRangeStart = Math.floor(BIN_COUNT * (min / bandwidth));
+  const binRangeEnd = Math.ceil(BIN_COUNT * (max / bandwidth));
+  const binRangeLength = binRangeEnd - binRangeStart;
+
+  const hzStepPerBin = bandwidth / BIN_COUNT;
+  const binHzStart = binRangeStart * hzStepPerBin;
+
+  const unclippedHeight = height - 60;
+
+  // Draw the frequency bins for this passband
+  for (const [i, { freqBins }] of bandBins.entries()) {
+    const { freqColor } = BAND_COLORS[i]!;
+    context.strokeStyle = freqColor;
+    context.lineWidth = 2;
+    context.beginPath();
+
+    let x = 0; // Reset x
+    let lineStarted = false;
+    const freqRange = freqBins.subarray(binRangeStart, binRangeEnd);
+    for (let i = 0; i < binRangeLength; i++) {
+      const hz = binHzStart + i * hzStepPerBin;
+      x = getX(hz);
+      const barHeight = unclippedHeight * (freqRange[i] / 255.0);
+      const y = height - barHeight;
+
+      if (!lineStarted) {
+        context.moveTo(x, y);
+        lineStarted = true;
+      } else {
+        context.lineTo(x, y);
+      }
+    }
+
+    context.stroke();
+  }
+}
+
+const FREQ_COLORS = [
   "#fff566",
   "#b37feb",
   "#5cdbd3",
@@ -422,7 +522,7 @@ const FREQUENCY_COLORS = [
   "#69c0ff",
 ];
 
-const FREQUENCY_RESPONSE_COLORS = [
+const FREQ_RESPONSE_COLORS = [
   "#ffec3d",
   "#9254de",
   "#36cfc9",
@@ -437,7 +537,7 @@ const FREQUENCY_RESPONSE_COLORS = [
   "#40a9ff",
 ];
 
-const BAND_COLORS: BandStyle[] = zip(FREQUENCY_COLORS, FREQUENCY_RESPONSE_COLORS).map(
+const BAND_COLORS: BandStyle[] = zip(FREQ_COLORS, FREQ_RESPONSE_COLORS).map(
   ([freqColor, responseColor]) => ({
     freqColor,
     responseColor,
