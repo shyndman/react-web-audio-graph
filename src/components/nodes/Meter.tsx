@@ -1,8 +1,8 @@
+import Node from "components/Node";
+import useAudioWorkletNode from "hooks/nodes/useAudioWorkletNode";
+import useAnimationFrame from "hooks/useAnimationFrame";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { NodeProps } from "react-flow-renderer";
-import Node from "components/Node";
-import useAnimationFrame from "@restart/hooks/useAnimationFrame";
-import useAudioWorkletNode from "hooks/nodes/useAudioWorkletNode";
 import { logarithmic } from "utils/scale";
 import { float32toDb } from "utils/units";
 
@@ -113,7 +113,6 @@ function Meter({ id, type }: NodeProps) {
     node.port.onmessage = handleMessage;
   }, [node, handleMessage]);
 
-  const animationRequest = useAnimationFrame();
   const tick = useCallback(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -122,10 +121,9 @@ function Meter({ id, type }: NodeProps) {
     }
 
     drawMeter(context, levelsRef.current.slice(0, channels));
-    animationRequest.request(tick);
-  }, [channels, animationRequest]);
+  }, [channels]);
 
-  animationRequest.request(tick);
+  useAnimationFrame(tick, true);
 
   return (
     <Node id={id} inputs={["input"]} title="Meter" type={type}>

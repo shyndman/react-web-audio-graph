@@ -1,3 +1,4 @@
+import NumericStepper from "components/controls/NumericStepper";
 import React, { useCallback } from "react";
 import { dbToFloat32, float32toDb } from "utils/units";
 import { BandStyle, FilterDescription } from "./types";
@@ -32,6 +33,7 @@ export function BandStrip({ filterDesc, bandStyle, onGainChange, onQChange }: Pr
         min={0.0001}
         step={0.001}
       />
+      <NumericStepper value={filterDesc.q} min={0} max={60} onChange={onQChange} />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
-import useAnimationFrame from "@restart/hooks/useAnimationFrame";
 import Node from "components/Node";
 import { nodeCleanup } from "components/Nodes";
 import { useNode } from "context/NodeContext";
@@ -8,6 +7,7 @@ import useAnalyserNode from "hooks/nodes/useAnalyserNode";
 import useAudioWorkletNode from "hooks/nodes/useAudioWorkletNode";
 import useBiquadFilterNode from "hooks/nodes/useBiquadFilterNode";
 import useGainNode from "hooks/nodes/useGainNode";
+import useAnimationFrame from "hooks/useAnimationFrame";
 import produce from "immer";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NodeProps } from "react-flow-renderer";
@@ -211,6 +211,7 @@ export function Vocoder({ id, type }: NodeProps) {
     [carrierInputNode, modInputNode, outputNode]
   );
 
+  // Draw frequency response changes
   const freqResponseCanvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = freqResponseCanvasRef.current;
@@ -251,17 +252,12 @@ export function Vocoder({ id, type }: NodeProps) {
     });
   }, []);
 
-  const raf = useAnimationFrame();
   const tick = useCallback(() => {
     const sampleRate = getFrequencyData();
     draw(sampleRate);
-    raf.request(tick);
   }, [draw, getFrequencyData]);
 
-  useEffect(() => {
-    if (paused) raf.cancel();
-    else raf.request(true, tick);
-  }, [paused, tick]);
+  useAnimationFrame(tick, !paused);
 
   return (
     <Node
